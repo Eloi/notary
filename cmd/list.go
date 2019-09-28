@@ -18,21 +18,33 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/eloi/notary/pkg/notary"
 	"github.com/spf13/cobra"
 )
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "List registered assets",
+	Long: `
+	Use list to show all or part of the assets registered
+	in the notary dapp. For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	notary list              list all registered assets
+	notary list -o owner     list assets registered by "owner"
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
+
+		owner, err := cmd.Flags().GetString("owner")
+		if err != nil {
+			fmt.Printf("%+v\n", err)
+		}
+
+		if len(owner) > 0 {
+			notary.ListByOwner(owner)
+		} else {
+			notary.ListAll()
+		}
 	},
 }
 
@@ -47,5 +59,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.Flags().StringP("owner", "o", "", "Show only assets of this owner")
 }
