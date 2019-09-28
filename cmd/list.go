@@ -17,9 +17,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/eloi/notary/pkg/notary"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // listCmd represents the list command
@@ -35,10 +37,24 @@ var listCmd = &cobra.Command{
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		owner, err := cmd.Flags().GetString("owner")
-		if err != nil {
+		var rpcServer, address, owner string
+		var err error
+
+		if rpcServer, err = cmd.Flags().GetString("rpcserver"); err != nil || len(rpcServer) == 0 {
+			fmt.Println("--rpcserver not defined")
+			os.Exit(1)
+		}
+
+		if address, err = cmd.Flags().GetString("address"); err != nil || len(address) == 0 {
+			fmt.Println("--address not defined")
+			os.Exit(1)
+		}
+
+		if owner, err = cmd.Flags().GetString("owner"); err != nil {
 			fmt.Printf("%+v\n", err)
 		}
+
+		notary.InitClient(rpcServer, address)
 
 		if len(owner) > 0 {
 			notary.ListByOwner(owner)
@@ -60,4 +76,8 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	listCmd.Flags().StringP("owner", "o", "", "Show only assets of this owner")
+
+	//listCmd.Flags().StringP("account", "x", viper.GetString("ACCOUNT"), "Ethereum account to operate from. Example: 0xFe5a....413f (required)")
+	listCmd.Flags().StringP("address", "a", viper.GetString("ADDRESS"), "Smart contract address. Example: 0xFe5a....413f (required)")
+	listCmd.Flags().StringP("rpcserver", "s", viper.GetString("RPCSERVER"), "Rpcserver where smart contract is deployed")
 }
