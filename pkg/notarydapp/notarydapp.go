@@ -28,7 +28,7 @@ var (
 )
 
 // NotarydappABI is the input ABI used to generate the binding from.
-const NotarydappABI = "[{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"}],\"name\":\"getDocumentByHash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"}],\"name\":\"getDocumentHashesByOwner\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"documentHash\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"documentOwner\",\"type\":\"string\"}],\"name\":\"registerDocument\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const NotarydappABI = "[{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"documentHash\",\"type\":\"bytes32\"},{\"internalType\":\"string\",\"name\":\"documentOwner\",\"type\":\"string\"}],\"name\":\"registerDocument\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"}],\"name\":\"DocumentRegistration\",\"type\":\"event\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"}],\"name\":\"getDocumentByHash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"string\",\"name\":\"owner\",\"type\":\"string\"}],\"name\":\"getDocumentHashesByOwner\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
 
 // Notarydapp is an auto generated Go binding around an Ethereum contract.
 type Notarydapp struct {
@@ -247,4 +247,157 @@ func (_Notarydapp *NotarydappSession) RegisterDocument(documentHash [32]byte, do
 // Solidity: function registerDocument(bytes32 documentHash, string documentOwner) returns(bool)
 func (_Notarydapp *NotarydappTransactorSession) RegisterDocument(documentHash [32]byte, documentOwner string) (*types.Transaction, error) {
 	return _Notarydapp.Contract.RegisterDocument(&_Notarydapp.TransactOpts, documentHash, documentOwner)
+}
+
+// NotarydappDocumentRegistrationIterator is returned from FilterDocumentRegistration and is used to iterate over the raw logs and unpacked data for DocumentRegistration events raised by the Notarydapp contract.
+type NotarydappDocumentRegistrationIterator struct {
+	Event *NotarydappDocumentRegistration // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *NotarydappDocumentRegistrationIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(NotarydappDocumentRegistration)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(NotarydappDocumentRegistration)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *NotarydappDocumentRegistrationIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *NotarydappDocumentRegistrationIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// NotarydappDocumentRegistration represents a DocumentRegistration event raised by the Notarydapp contract.
+type NotarydappDocumentRegistration struct {
+	Timestamp *big.Int
+	Hash      [32]byte
+	Owner     common.Hash
+	Raw       types.Log // Blockchain specific contextual infos
+}
+
+// FilterDocumentRegistration is a free log retrieval operation binding the contract event 0x428a0ed1845add1d9faf13ee0d41150a1bfec9d43f5bca366aedc863c0aa6acc.
+//
+// Solidity: event DocumentRegistration(uint256 timestamp, bytes32 indexed hash, string indexed owner)
+func (_Notarydapp *NotarydappFilterer) FilterDocumentRegistration(opts *bind.FilterOpts, hash [][32]byte, owner []string) (*NotarydappDocumentRegistrationIterator, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _Notarydapp.contract.FilterLogs(opts, "DocumentRegistration", hashRule, ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &NotarydappDocumentRegistrationIterator{contract: _Notarydapp.contract, event: "DocumentRegistration", logs: logs, sub: sub}, nil
+}
+
+// WatchDocumentRegistration is a free log subscription operation binding the contract event 0x428a0ed1845add1d9faf13ee0d41150a1bfec9d43f5bca366aedc863c0aa6acc.
+//
+// Solidity: event DocumentRegistration(uint256 timestamp, bytes32 indexed hash, string indexed owner)
+func (_Notarydapp *NotarydappFilterer) WatchDocumentRegistration(opts *bind.WatchOpts, sink chan<- *NotarydappDocumentRegistration, hash [][32]byte, owner []string) (event.Subscription, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _Notarydapp.contract.WatchLogs(opts, "DocumentRegistration", hashRule, ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(NotarydappDocumentRegistration)
+				if err := _Notarydapp.contract.UnpackLog(event, "DocumentRegistration", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseDocumentRegistration is a log parse operation binding the contract event 0x428a0ed1845add1d9faf13ee0d41150a1bfec9d43f5bca366aedc863c0aa6acc.
+//
+// Solidity: event DocumentRegistration(uint256 timestamp, bytes32 indexed hash, string indexed owner)
+func (_Notarydapp *NotarydappFilterer) ParseDocumentRegistration(log types.Log) (*NotarydappDocumentRegistration, error) {
+	event := new(NotarydappDocumentRegistration)
+	if err := _Notarydapp.contract.UnpackLog(event, "DocumentRegistration", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
